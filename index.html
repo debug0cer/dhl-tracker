@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DHL Package Tracker | Monitor Your Shipments</title>
+    <meta name="description"
+        content="Track and monitor your package shipments from origin to destination with real-time updates">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="index.css">
+</head>
+
+<body>
+    <!-- Header Navigation -->
+    <header class="header">
+        <div class="header-container">
+            <div class="logo">
+                <div class="logo-icon">
+                    <span class="logo-text">DHL</span>
+                </div>
+                <span class="logo-subtitle">Package Tracker</span>
+            </div>
+            <nav class="nav">
+                <button class="nav-btn active" data-view="dashboard">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="3" width="7" height="7" rx="1" />
+                        <rect x="14" y="3" width="7" height="7" rx="1" />
+                        <rect x="3" y="14" width="7" height="7" rx="1" />
+                        <rect x="14" y="14" width="7" height="7" rx="1" />
+                    </svg>
+                    Dashboard
+                </button>
+                <button class="nav-btn" data-view="tracking">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8" />
+                        <path d="m21 21-4.35-4.35" />
+                    </svg>
+                    Track Package
+                </button>
+            </nav>
+            <button class="btn btn-primary" id="addShipmentBtn">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 5v14M5 12h14" />
+                </svg>
+                New Shipment
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main">
+        <!-- Dashboard View -->
+        <section class="view active" id="dashboardView">
+            <!-- Stats Overview -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon pending">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <circle cx="12" cy="12" r="10" />
+                            <path d="M12 6v6l4 2" />
+                        </svg>
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-value" id="pendingCount">0</span>
+                        <span class="stat-label">Pending</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon transit">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path
+                                d="M5 18H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h3.19M15 6h3a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2" />
+                            <circle cx="7" cy="18" r="2" />
+                            <path d="M15 18H9" />
+                            <circle cx="17" cy="18" r="2" />
+                            <rect x="5" y="4" width="10" height="12" rx="1" />
+                        </svg>
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-value" id="transitCount">0</span>
+                        <span class="stat-label">In Transit</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon delivered">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                            <path d="m22 4-10 10-3-3" />
+                        </svg>
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-value" id="deliveredCount">0</span>
+                        <span class="stat-label">Delivered</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon exception">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" />
+                            <path d="M12 9v4M12 17h.01" />
+                        </svg>
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-value" id="exceptionCount">0</span>
+                        <span class="stat-label">Exception</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Shipments List -->
+            <div class="section">
+                <div class="section-header">
+                    <h2 class="section-title">Active Shipments</h2>
+                    <div class="search-box">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <circle cx="11" cy="11" r="8" />
+                            <path d="m21 21-4.35-4.35" />
+                        </svg>
+                        <input type="text" id="searchInput" placeholder="Search by tracking number...">
+                    </div>
+                </div>
+                <div class="shipments-grid" id="shipmentsGrid">
+                    <!-- Shipment cards will be dynamically inserted here -->
+                    <div class="empty-state" id="emptyState">
+                        <div class="empty-icon">
+                            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="1.5">
+                                <path
+                                    d="M20 7.5v9l-4 2.25M20 7.5L12 3 4 7.5M20 7.5l-8 4.5M4 7.5v9l8 4.5M4 7.5l8 4.5M12 12v9" />
+                            </svg>
+                        </div>
+                        <h3>No Shipments Yet</h3>
+                        <p>Click "New Shipment" to start tracking your packages</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Tracking Detail View -->
+        <section class="view" id="trackingView">
+            <button class="back-btn" id="backBtn">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="m15 18-6-6 6-6" />
+                </svg>
+                Back to Dashboard
+            </button>
+
+            <div class="tracking-container">
+                <div class="tracking-header">
+                    <div class="tracking-info">
+                        <span class="tracking-label">Tracking Number</span>
+                        <h1 class="tracking-number" id="detailTrackingNumber">DHL-XXXXXXXX</h1>
+                        <span class="tracking-status" id="detailStatus">In Transit</span>
+                    </div>
+                    <div class="tracking-actions">
+                        <button class="btn btn-secondary" id="updateLocationBtn">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
+                                <circle cx="12" cy="10" r="3" />
+                            </svg>
+                            Update Location
+                        </button>
+                        <button class="btn btn-secondary" id="shareLinkBtn">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+                                <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+                            </svg>
+                            Share Link
+                        </button>
+                        <button class="btn btn-danger" id="deleteShipmentBtn">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path
+                                    d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                            </svg>
+                            Delete
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Route Overview -->
+                <div class="route-card">
+                    <div class="route-point origin">
+                        <div class="route-marker"></div>
+                        <div class="route-details">
+                            <span class="route-label">Origin</span>
+                            <span class="route-location" id="detailOrigin">Loading...</span>
+                            <span class="route-time" id="detailOriginTime">--</span>
+                        </div>
+                    </div>
+                    <div class="route-progress">
+                        <div class="progress-line">
+                            <div class="progress-fill" id="progressFill"></div>
+                        </div>
+                        <div class="progress-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path
+                                    d="M5 18H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h3.19M15 6h3a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2" />
+                                <circle cx="7" cy="18" r="2" />
+                                <path d="M15 18H9" />
+                                <circle cx="17" cy="18" r="2" />
+                                <rect x="5" y="4" width="10" height="12" rx="1" />
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="route-point destination">
+                        <div class="route-marker"></div>
+                        <div class="route-details">
+                            <span class="route-label">Destination</span>
+                            <span class="route-location" id="detailDestination">Loading...</span>
+                            <span class="route-time" id="detailETA">Estimated: --</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Timeline -->
+                <div class="timeline-section">
+                    <h2 class="section-title">Tracking History</h2>
+                    <div class="timeline" id="timeline">
+                        <!-- Timeline items will be dynamically inserted here -->
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- New Shipment Modal -->
+    <div class="modal-overlay" id="shipmentModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2>Create New Shipment</h2>
+                <button class="modal-close" id="closeModalBtn">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 6 6 18M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            <form class="modal-form" id="shipmentForm">
+                <div class="form-group">
+                    <label for="originInput">Origin Location</label>
+                    <input type="text" id="originInput" placeholder="e.g., New York, USA" required>
+                </div>
+                <div class="form-group">
+                    <label for="destinationInput">Destination Location</label>
+                    <input type="text" id="destinationInput" placeholder="e.g., London, UK" required>
+                </div>
+                <div class="form-group">
+                    <label for="descriptionInput">Package Description (Optional)</label>
+                    <input type="text" id="descriptionInput" placeholder="e.g., Electronics, Documents">
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" id="cancelModalBtn">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Create Shipment</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Update Location Modal -->
+    <div class="modal-overlay" id="locationModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2>Update Package Location</h2>
+                <button class="modal-close" id="closeLocationModalBtn">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 6 6 18M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            <form class="modal-form" id="locationForm">
+                <div class="form-group">
+                    <label for="newLocationInput">Current Location</label>
+                    <input type="text" id="newLocationInput" placeholder="e.g., Frankfurt, Germany" required>
+                </div>
+                <div class="form-group">
+                    <label for="statusSelect">Status</label>
+                    <select id="statusSelect" required>
+                        <option value="arrived">Arrived at Facility</option>
+                        <option value="departed">Departed Facility</option>
+                        <option value="in_transit">In Transit</option>
+                        <option value="out_for_delivery">Out for Delivery</option>
+                        <option value="delivered">Delivered</option>
+                        <option value="exception">Exception/Delay</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="notesInput">Notes (Optional)</label>
+                    <input type="text" id="notesInput" placeholder="e.g., Package cleared customs">
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" id="cancelLocationBtn">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Update Location</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- JSONbin Setup Modal -->
+    <div class="modal-overlay" id="setupModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2>🔧 Cloud Setup</h2>
+            </div>
+            <div class="modal-form">
+                <p style="color: var(--text-secondary); margin-bottom: var(--space-lg); font-size: 0.9rem;">
+                    To sync data across devices, you need a free JSONbin account.
+                </p>
+                <div class="form-group">
+                    <label for="apiKeyInput">JSONbin API Key</label>
+                    <input type="text" id="apiKeyInput" placeholder="$2a$10$xxxxx..." required>
+                    <small style="color: var(--text-muted); font-size: 0.75rem;">
+                        Get it from <a href="https://jsonbin.io/api-keys" target="_blank"
+                            style="color: var(--dhl-yellow);">jsonbin.io/api-keys</a>
+                    </small>
+                </div>
+                <div class="form-group">
+                    <label for="binIdInput">Bin ID (leave empty to create new)</label>
+                    <input type="text" id="binIdInput" placeholder="Optional - for existing bin">
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-primary" id="saveSetupBtn">Save & Connect</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="config.js"></script>
+    <script src="storage.js"></script>
+    <script src="index.js"></script>
+</body>
+
+</html>
