@@ -1,6 +1,0 @@
-const CONFIG = {
-    BIN_ID: '698a7746ac1b691474082212',
-    API_KEY: '$2a$10$ZWCNu7oQOTTBictVSLd.0u1Dil3W6IqPsSVFTEFbYNc5ocB57DteC'
-};
-
-window.CONFIG = CONFIG;
