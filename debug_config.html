@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DHL Tracker Config Helper</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+            background: #f4f4f4;
+        }
+
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #d40511;
+        }
+
+        pre {
+            background: #eee;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-family: monospace;
+        }
+
+        button {
+            background: #d40511;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background: #b0040e;
+        }
+
+        .error {
+            color: red;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="card">
+        <h1>config.js Generator</h1>
+        <p>This tool reads your saved credentials and generates the code for <code>config.js</code>.</p>
+
+        <h3>Your Current Credentials (from this browser):</h3>
+        <div id="status">Reading...</div>
+
+        <h3>Copy this into config.js:</h3>
+        <pre id="codeBlock">// Loading...</pre>
+        <button onclick="copyCode()">Copy to Clipboard</button>
+    </div>
+
+    <script>
+        const binId = localStorage.getItem('dhl_bin_id');
+        const apiKey = localStorage.getItem('dhl_api_key');
+        const statusEl = document.getElementById('status');
+        const codeBlock = document.getElementById('codeBlock');
+
+        if (binId && apiKey) {
+            statusEl.innerHTML = `
+                <p><strong>Bin ID:</strong> ${binId}</p>
+                <p><strong>API Key:</strong> ${apiKey.substring(0, 10)}...</p>
+            `;
+
+            const configContent = `const CONFIG = {
+    BIN_ID: '${binId}',
+    API_KEY: '${apiKey}'
+};
+
+window.CONFIG = CONFIG;`;
+
+            codeBlock.textContent = configContent;
+        } else {
+            statusEl.innerHTML = '<p class="error">❌ No credentials found in this browser!</p><p>Please open <code>index.html</code> first and complete the setup.</p>';
+            codeBlock.textContent = '// First set up the app on index.html, then come back here.';
+        }
+
+        function copyCode() {
+            navigator.clipboard.writeText(codeBlock.textContent).then(() => {
+                alert('Copied! Now paste this into config.js');
+            });
+        }
+    </script>
+</body>
+
+</html>

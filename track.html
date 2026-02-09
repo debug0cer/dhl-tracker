@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sendungsverfolgung | DHL Tracker</title>
+    <meta name="description" content="Verfolgen Sie Ihren Sendungsstatus">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="index.css">
+    <style>
+        .track-hero {
+            text-align: center;
+            padding: var(--space-2xl) var(--space-lg);
+            margin-bottom: var(--space-xl);
+        }
+
+        .track-hero h1 {
+            font-size: 2rem;
+            margin-bottom: var(--space-sm);
+        }
+
+        .track-hero p {
+            color: var(--text-secondary);
+        }
+
+        .track-search {
+            max-width: 500px;
+            margin: var(--space-xl) auto;
+            display: flex;
+            gap: var(--space-sm);
+        }
+
+        .track-search input {
+            flex: 1;
+            padding: var(--space-md) var(--space-lg);
+            background: var(--bg-card);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-md);
+            color: var(--text-primary);
+            font-size: 1rem;
+        }
+
+        .track-search input:focus {
+            outline: none;
+            border-color: var(--dhl-red);
+        }
+
+        .not-found,
+        .loading {
+            text-align: center;
+            padding: var(--space-2xl);
+            color: var(--text-secondary);
+        }
+
+        .not-found svg,
+        .loading svg {
+            width: 64px;
+            height: 64px;
+            margin-bottom: var(--space-lg);
+            opacity: 0.5;
+        }
+
+        .loading svg {
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .share-link {
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+            padding: var(--space-md);
+            background: var(--bg-elevated);
+            border-radius: var(--radius-md);
+            margin-top: var(--space-lg);
+            font-size: 0.85rem;
+        }
+
+        .share-link input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+
+        .share-link button {
+            padding: var(--space-sm) var(--space-md);
+            background: var(--dhl-red);
+            color: white;
+            border: none;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.8rem;
+        }
+
+        .share-link button:hover {
+            background: var(--dhl-red-dark);
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-container">
+            <div class="logo">
+                <div class="logo-icon">
+                    <span class="logo-text">DHL</span>
+                </div>
+                <span class="logo-subtitle">Paketverfolgung</span>
+            </div>
+        </div>
+    </header>
+
+    <main class="main">
+        <!-- Search Hero -->
+        <div class="track-hero" id="searchSection">
+            <h1>Sendung verfolgen</h1>
+            <p>Geben Sie Ihre Sendungsnummer ein, um den Status zu sehen</p>
+            <div class="track-search">
+                <input type="text" id="trackingInput" placeholder="Sendungsnummer eingeben (z.B. DHL-ABC12345)">
+                <button class="btn btn-primary" id="trackBtn">Suchen</button>
+            </div>
+        </div>
+
+        <!-- Loading -->
+        <div class="loading" id="loading" style="display: none;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+            </svg>
+            <h3>Laden...</h3>
+        </div>
+
+        <!-- Not Found Message -->
+        <div class="not-found" id="notFound" style="display: none;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <circle cx="11" cy="11" r="8" />
+                <path d="m21 21-4.35-4.35" />
+            </svg>
+            <h3>Paket nicht gefunden</h3>
+            <p>Wir konnten kein Paket mit dieser Nummer finden.<br>Bitte überprüfen Sie die Nummer und versuchen Sie es
+                erneut.</p>
+        </div>
+
+        <!-- Tracking Details -->
+        <div class="tracking-container" id="trackingDetails" style="display: none;">
+            <div class="tracking-header">
+                <div class="tracking-info">
+                    <span class="tracking-label">Sendungsnummer</span>
+                    <h1 class="tracking-number" id="detailTrackingNumber">DHL-XXXXXXXX</h1>
+                    <span class="tracking-status" id="detailStatus">In Zustellung</span>
+                </div>
+            </div>
+
+            <!-- Share Link -->
+            <div class="share-link">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+                    <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+                </svg>
+                <input type="text" id="shareUrl" readonly>
+                <button id="copyBtn">Link kopieren</button>
+            </div>
+
+            <!-- Route Overview -->
+            <div class="route-card" style="margin-top: var(--space-xl);">
+                <div class="route-point origin">
+                    <div class="route-marker"></div>
+                    <div class="route-details">
+                        <span class="route-label">Start</span>
+                        <span class="route-location" id="detailOrigin">Laden...</span>
+                        <span class="route-time" id="detailOriginTime">--</span>
+                    </div>
+                </div>
+                <div class="route-progress">
+                    <div class="progress-line">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                    <div class="progress-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path
+                                d="M5 18H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h3.19M15 6h3a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2" />
+                            <circle cx="7" cy="18" r="2" />
+                            <path d="M15 18H9" />
+                            <circle cx="17" cy="18" r="2" />
+                            <rect x="5" y="4" width="10" height="12" rx="1" />
+                        </svg>
+                    </div>
+                </div>
+                <div class="route-point destination">
+                    <div class="route-marker"></div>
+                    <div class="route-details">
+                        <span class="route-label">Ziel</span>
+                        <span class="route-location" id="detailDestination">Laden...</span>
+                        <span class="route-time" id="detailETA">Geschätzt: --</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Timeline -->
+            <div class="timeline-section">
+                <h2 class="section-title">Sendungsverlauf</h2>
+                <div class="timeline" id="timeline"></div>
+            </div>
+        </div>
+    </main>
+
+    <script src="config.js"></script>
+    <script src="storage.js"></script>
+    <script>
+        const STATUS_LABELS = {
+            pending: 'Ausstehend',
+            in_transit: 'In Zustellung',
+            delivered: 'Zugestellt',
+            exception: 'Verzögerung'
+        };
+
+        // Get tracking number from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const trackingNumber = urlParams.get('id');
+
+        // DOM Elements
+        const searchSection = document.getElementById('searchSection');
+        const trackingDetails = document.getElementById('trackingDetails');
+        const notFound = document.getElementById('notFound');
+        const loading = document.getElementById('loading');
+        const trackingInput = document.getElementById('trackingInput');
+        const trackBtn = document.getElementById('trackBtn');
+        const copyBtn = document.getElementById('copyBtn');
+        const shareUrl = document.getElementById('shareUrl');
+
+        // Initialize
+        if (trackingNumber) {
+            trackingInput.value = trackingNumber;
+            searchPackage(trackingNumber);
+        }
+
+        // Event Listeners
+        trackBtn.addEventListener('click', () => searchPackage(trackingInput.value.trim()));
+        trackingInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') searchPackage(trackingInput.value.trim());
+        });
+
+        copyBtn.addEventListener('click', () => {
+            shareUrl.select();
+            navigator.clipboard.writeText(shareUrl.value);
+            copyBtn.textContent = 'Kopiert!';
+            setTimeout(() => { copyBtn.textContent = 'Link kopieren'; }, 2000);
+        });
+
+        async function searchPackage(id) {
+            if (!id) return;
+
+            loading.style.display = 'block';
+            notFound.style.display = 'none';
+            trackingDetails.style.display = 'none';
+
+            try {
+                // Fetch from cloud
+                const shipments = await CloudStorage.getShipments();
+                const shipment = shipments.find(s =>
+                    s.trackingNumber.toLowerCase() === id.toLowerCase()
+                );
+
+                loading.style.display = 'none';
+
+                if (shipment) {
+                    showTrackingDetails(shipment);
+                    const newUrl = `${window.location.pathname}?id=${shipment.trackingNumber}`;
+                    history.pushState({}, '', newUrl);
+                } else {
+                    notFound.style.display = 'block';
+                }
+            } catch (error) {
+                loading.style.display = 'none';
+                notFound.style.display = 'block';
+                console.error('Error:', error);
+            }
+        }
+
+        function showTrackingDetails(shipment) {
+            trackingDetails.style.display = 'block';
+
+            shareUrl.value = window.location.href.split('?')[0] + '?id=' + shipment.trackingNumber;
+
+            document.getElementById('detailTrackingNumber').textContent = shipment.trackingNumber;
+
+            const statusEl = document.getElementById('detailStatus');
+            statusEl.textContent = STATUS_LABELS[shipment.status] || shipment.status;
+            statusEl.className = `tracking-status ${shipment.status}`;
+
+            document.getElementById('detailOrigin').textContent = shipment.origin.name;
+            document.getElementById('detailOriginTime').textContent = formatDate(shipment.origin.timestamp);
+            document.getElementById('detailDestination').textContent = shipment.destination.name;
+
+            const progress = calculateProgress(shipment);
+            document.getElementById('progressFill').style.width = `${progress}%`;
+
+            document.getElementById('detailETA').textContent =
+                shipment.status === 'delivered' ? 'Zugestellt' : 'Unterwegs';
+
+            renderTimeline(shipment);
+        }
+
+        function calculateProgress(shipment) {
+            if (shipment.status === 'delivered') return 100;
+            if (shipment.status === 'pending') return 10;
+            return Math.min(15 + (shipment.checkpoints.length * 15), 85);
+        }
+
+        function formatDate(date) {
+            return new Date(date).toLocaleDateString('de-DE', {
+                month: 'short', day: 'numeric', year: 'numeric',
+                hour: '2-digit', minute: '2-digit'
+            });
+        }
+
+        function renderTimeline(shipment) {
+            const timeline = document.getElementById('timeline');
+            timeline.innerHTML = '';
+
+            shipment.checkpoints.forEach((checkpoint, index) => {
+                const item = document.createElement('div');
+                item.className = 'timeline-item';
+                if (index === 0) item.classList.add('active');
+                else if (shipment.status === 'delivered') item.classList.add('completed');
+
+                item.innerHTML = `
+                    <div class="timeline-marker">
+                        ${index === 0 ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg>' : ''}
+                    </div>
+                    <div class="timeline-content">
+                        <div class="timeline-location">${checkpoint.location}</div>
+                        <div class="timeline-status">${checkpoint.status}</div>
+                        <div class="timeline-time">${formatDate(checkpoint.timestamp)}</div>
+                        ${checkpoint.notes ? `<div class="timeline-notes">${checkpoint.notes}</div>` : ''}
+                    </div>
+                `;
+                timeline.appendChild(item);
+            });
+        }
+    </script>
+</body>
+
+</html>
